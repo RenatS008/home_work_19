@@ -1,0 +1,6 @@
+/.idea
+application/dao/__pycache__
+helpers/__pycache__
+application/views/__pycache__
+.DS_Store
+__pycache__
