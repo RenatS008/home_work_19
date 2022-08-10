@@ -9,25 +9,14 @@ class MovieService:
     def get_all(self) -> list[Movie]:
         return self.movie_dao.get_all()
 
-    def get_by(self, id=None, director_id=None, genre_id=None, year=None):
+    def get_by(self, **kwargs):
+        return self.movie_dao.gets_universal(**kwargs)
 
-        if director_id:
-            return self.movie_dao.gets_universal(director_id=director_id)
+    def create(self, data) -> None:
+        return self.movie_dao.create(**data)
 
-        if genre_id:
-            return self.movie_dao.gets_universal(genre_id=genre_id)
+    def update(self, data) -> None:
+        return self.movie_dao.update(data)
 
-        if year:
-            return self.movie_dao.gets_universal(year=year)
-
-        if id:
-            return self.movie_dao.gets_universal(id=id)
-
-    def add_movie(self, data):
-        self.movie_dao.create_movie(**data)
-
-    def update(self, data):
-        self.movie_dao.update_movie(data)
-
-    def delete(self, movie_id):
+    def delete(self, movie_id) -> None:
         self.movie_dao.delete(movie_id)

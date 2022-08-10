@@ -1,62 +1,38 @@
 from flask import request
 from flask_restx import Resource, Namespace
 
-from implemented import movie_service
+from application.service.auth import generate_token_for_user, check_token
+from implemented import user_service
 
 auth_ns = Namespace('auth')
 
 
 @auth_ns.route('/')
 class AuthView(Resource):
-    def get(self):
-        """
-        Поиск фильмов по нескольким параметрам, если параметр не задан,
-        выдаем весь список.
-        """
-        if len(request.args) > 0:
-            return movie_schema.dump(movie_service.get_by(**request.args))
-        else:
-            return movie_schema.dump(movie_service.get_all()), 200
-
     def post(self):
         """
-        Добавление нового фильма
+        Добавление нового Пользователя
         """
         data = request.json
-        if movie_service.add_movie(data):
-            new_movie = movie_service.add_movie(data)
-            if new_movie:
-                return "Фильм успешно добавлен.", 201, {'location': f'/movies/{new_movie}'}
+        username = data.get('username')
+        password = data.get('password')
 
-        else:
-            return "Фильм не добавлен.", 503
+        if not username or not password:
+            return "Нет пароля или логина", 400
 
+        user = user_service.get_by_username(username=username)
+        return generate_token_for_user(username=username,
+                                       password=password,
+                                       password_hash=user.password,
+                                       is_refresh=False), 201
 
-@movie_ns.route('/<int:movie_id>/')
-class MovieView(Resource):
-    def get(self, movie_id: int):
+    def put(self):
         """
-        Получение фильмов по его id
-        """
-        return movie_schema.dump(movie_service.get_by(movie_id)), 200
-
-    def put(self, movie_id: int):
-        """
-        Изменить информацию о фильме по его id
+        Изменить информацию о Пользователь по его id
         """
         data = request.json
-        if movie_schema.dump(movie_service.update(data)):
-            upd_movie = movie_service.add_movie(data)
-            return "Успешно удалось изменить информацию о фильме.", 201, {'location': f'/movies/{upd_movie}'}
-        else:
-            return "Изменить информацию о фильме не удалось.", 502
+        if not data.get("refresh_token"):
+            return "", 400
 
-    def delete(self, movie_id: int):
-        """
-        Удаление фильма по его id
-        """
-        if movie_schema.dump(movie_service.delete(movie_id)) :
-            return "Фильм успешно удален.", 204
-        else:
-            return "Фильм не удален.", 502
+        return check_token(data.get("refresh_token")), 200
 

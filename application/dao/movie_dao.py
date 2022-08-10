@@ -12,42 +12,36 @@ class MovieDAO:
         return self.session.query(Movie).all()
 
     def get_by_id(self, movie_id):
-        return self.session.query(Movie).filter(Movie.id == movie_id).first()
-
-    def get_all_movie_by_director(self, director_id):
-        return self.session.query(Movie).filter(Movie.director_id == director_id).all()
-
-    def get_all_movie_by_genre(self, genre_id):
-        return self.session.query(Movie).filter(Movie.genre_id == genre_id).all()
-
-    def get_by_year(self, year):
-        return self.session.query(Movie).filter(Movie.year == year).all()
+        return self.session.query(Movie).filter(Movie.id == movie_id).one()
 
     def gets_universal(self, **kwargs):
         """
         Universal function for search
         """
-        return self.session.query(Movie).filter_by(**kwargs).all()
+        return self.session.query(Movie).filter_by(
+            **{key: value for key, value in kwargs.items() if value is not None}
+        ).all()
 
-    def create_movie(self, data) -> bool:
+    def create(self, **kwargs):
         try:
-            new_movie = self.session.add(Movie(**data))
+            new_id = self.session.add(Movie(**kwargs))
             self.session.commit()
-            return new_movie
+            return new_id
         except Exception as e:
             print(f"Error adding movie:\n{e}")
             self.session.rollback()
             return False
 
-    def update_movie(self, data: dict):
+    def update(self, data: dict) -> None:
         try:
-            self.session.query(Movie).filter(Movie.id == data.get("id")).update(data)
+            movie_id = self.session.query(Movie).filter(Movie.id == data.get("id")).update(data)
             self.session.commit()
+            return movie_id
         except Exception as e:
             print(f"Error update movie:\n{e}")
             self.session.rollback()
 
-    def delete(self, movie_id):
+    def delete(self, movie_id) -> None:
         try:
             self.session.query(Movie).filter(Movie.id == movie_id).delete()
             self.session.commit()

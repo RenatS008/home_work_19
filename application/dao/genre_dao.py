@@ -5,6 +5,7 @@ class GenreDAO:
     """
     DAO Genre
     """
+
     def __init__(self, session):
         self.session = session
 
@@ -14,25 +15,27 @@ class GenreDAO:
     def get_by_id(self, genre_id):
         return self.session.query(Genre).filter(Genre.id == genre_id).one()
 
-    def create_genre(self, data) -> bool:
+    def create(self, **kwargs):
         try:
-            new_genre = self.session.add(Genre(**data))
+            new_id = self.session.add(Genre(**kwargs))
             self.session.commit()
-            return new_genre
+            return new_id
         except Exception as e:
             print(f"Error adding genre:\n{e}")
             self.session.rollback()
             return False
 
-    def update_genre(self, data: dict):
+    def update(self, data: dict) -> None:
+
         try:
-            self.session.query(Genre).filter(Genre.id == data.get("id")).update(data)
+            genre_id = self.session.query(Genre).filter(Genre.id == data.get("id")).update(data)
             self.session.commit()
+            return genre_id
         except Exception as e:
             print(f"Error update genre:\n{e}")
             self.session.rollback()
 
-    def delete(self, genre_id):
+    def delete(self, genre_id) -> None:
         try:
             self.session.query(Genre).filter(Genre.id == genre_id).delete()
             self.session.commit()

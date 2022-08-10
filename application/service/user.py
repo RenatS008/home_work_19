@@ -1,5 +1,6 @@
 import hashlib
 
+from application.service.auth import generate_hash_for_password
 from constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS
 
 from application.dao.user_dao import UserDAO
@@ -11,22 +12,20 @@ class UserService:
         self.user_dao = user_dao
 
     def get_all(self) -> list[User]:
-        return self.user_dao.get_all_users()
+        return self.user_dao.get_all()
 
-    def add_user(self, data):
-        self.user_dao.create_user(**data)
+    def get_by_id(self, user_id):
+        return self.user_dao.get_by_id(user_id)
 
-    def update(self, data):
-        self.user_dao.update_user(data)
+    def get_by_username(self, username):
+        return self.user_dao.get_by_username(username)
 
-    def delete(self, user_id):
+    def create(self, data) -> None:
+        data["password"] = generate_hash_for_password(password=data["password"])
+        return self.user_dao.create(data)
+
+    def update(self, data) -> None:
+        return self.user_dao.update(data)
+
+    def delete(self, user_id) -> None:
         self.user_dao.delete(user_id)
-
-
-def get_hash_for_user(password):
-    return hashlib.pbkdf2_hmac(
-        'sha256',
-        password.encode('utf-8'),  # Convert the password to bytes
-        PWD_HASH_SALT,
-        PWD_HASH_ITERATIONS
-    ).decode("utf-8", "ignore")
