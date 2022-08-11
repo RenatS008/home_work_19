@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_restx import Api
 
-
 from config import Config
 from setup_db import db
 
@@ -33,4 +32,4 @@ app = create_app(Config())
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

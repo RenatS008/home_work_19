@@ -12,7 +12,10 @@ class DirectorDAO:
         return self.session.query(Director).all()
 
     def get_by_id(self, director_id):
-        return self.session.query(Director).filter(Director.id == director_id).one()
+        try:
+            return self.session.query(Director).filter(Director.id == director_id).one()
+        except Exception as e:
+            print(f"Error: director with id:{director_id}, not found.\n{e}")
 
     def create(self, **kwargs):
         try:

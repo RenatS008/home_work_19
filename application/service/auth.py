@@ -4,19 +4,24 @@ import hashlib
 import datetime
 
 import jwt
-from config import Config
+from flask import current_app
+
+# class AuthService: (Хотел сделать через класс, не разобрался как)
 
 
 def __generate_password_digest(password: str) -> bytes:
     return hashlib.pbkdf2_hmac(
-        hash_name=Config["HASH_NAME"],
+        hash_name="sha256",
         password=password.encode("utf-8"),
-        salt=Config["PWD_HASH_SALT"],
-        iterations=Config["PWD_HASH_ITERATIONS"]
+        salt=current_app.config["PWD_HASH_SALT"],
+        iterations=current_app.config["PWD_HASH_ITERATIONS"]
     )
 
 
 def generate_hash_for_password(password: str) -> str:
+    """
+    Generating a hash for the user's password
+    """
     return base64.b64encode(__generate_password_digest(password)).decode('utf-8')
 
 
@@ -25,6 +30,9 @@ def compare_pass_and_hash(password_hash, other_password) -> bool:
 
 
 def generate_token_for_user(username, password, password_hash, is_refresh=False):
+    """
+    Generating a token for the user's
+    """
     if username is None:
         return None
 
@@ -38,16 +46,16 @@ def generate_token_for_user(username, password, password_hash, is_refresh=False)
     }
 
     # 30 MIN FOR ACCESS_TOKEN
-    min30 = datetime.datetime.utcnow() + datetime.timedelta(minutes=Config['TOKEN_EXPIRE_MINUTES'])
+    min30 = datetime.datetime.utcnow() + datetime.timedelta(minutes=current_app.config["TOKEN_EXPIRE_MINUTES"])
     data["exp"] = calendar.timegm(min30.timetuple())
-    access_token = jwt.encode(data, secret=Config['SECRET_KEY'],
-                              algorithm=Config['ALGORITHM'])
+    access_token = jwt.encode(data, key=current_app.config["SECRET_KEY"],
+                              algorithm=current_app.config["ALGORITHM"])
 
     # 130 DAYS FOR ACCESS_TOKEN
-    days130 = datetime.datetime.utcnow() + datetime.timedelta(days=Config['TOKEN_EXPIRE_DAYS'])
+    days130 = datetime.datetime.utcnow() + datetime.timedelta(days=current_app.config["TOKEN_EXPIRE_DAYS"])
     data["exp"] = calendar.timegm(days130.timetuple())
-    refresh_token = jwt.encode(data, secret=Config['SECRET_KEY'],
-                               algorithm=Config['ALGORITHM'])
+    refresh_token = jwt.encode(data, key=current_app.config["SECRET_KEY"],
+                               algorithm=current_app.config["ALGORITHM"])
 
     token = {"access_token": access_token,
              "refresh_token": refresh_token
@@ -57,8 +65,11 @@ def generate_token_for_user(username, password, password_hash, is_refresh=False)
 
 
 def check_token(token):
-    data = jwt.decode(token, secret=Config['ALGORITHM'],
-                      algorithms=Config['ALGORITHM'])
+    """
+    Checking the validity of the token
+    """
+    data = jwt.decode(token, key=current_app.config["SECRET_KEY"],
+                      algorithms=current_app.config["ALGORITHM"])
 
     username = data.get('username')
     password = data.get('password')

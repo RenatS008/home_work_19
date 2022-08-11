@@ -1,7 +1,4 @@
-import hashlib
-
 from application.service.auth import generate_hash_for_password
-from constants import PWD_HASH_SALT, PWD_HASH_ITERATIONS
 
 from application.dao.user_dao import UserDAO
 from application.dao.model.user import User

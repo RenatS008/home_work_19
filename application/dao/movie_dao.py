@@ -12,7 +12,10 @@ class MovieDAO:
         return self.session.query(Movie).all()
 
     def get_by_id(self, movie_id):
-        return self.session.query(Movie).filter(Movie.id == movie_id).one()
+        try:
+            return self.session.query(Movie).filter(Movie.id == movie_id).one()
+        except Exception as e:
+            print(f"Error: movie with id:{movie_id}, not found.\n{e}")
 
     def gets_universal(self, **kwargs):
         """
@@ -43,8 +46,12 @@ class MovieDAO:
 
     def delete(self, movie_id) -> None:
         try:
-            self.session.query(Movie).filter(Movie.id == movie_id).delete()
+            movie = self.get_by_id(movie_id)
+            self.session.delete(movie)
             self.session.commit()
-        except Exception as e:
-            print(f"Error delete movie:\n{e}")
+            # self.session.query(Movie).filter(Movie.id == movie_id).delete()
+        except Exception:
+            # print(f"Error delete movie.")
             self.session.rollback()
+
+

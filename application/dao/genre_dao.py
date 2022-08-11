@@ -13,7 +13,11 @@ class GenreDAO:
         return self.session.query(Genre).all()
 
     def get_by_id(self, genre_id):
-        return self.session.query(Genre).filter(Genre.id == genre_id).one()
+        try:
+            return self.session.query(Genre).filter(Genre.id == genre_id).one()
+        except Exception as e:
+            print(f"Error: genre with id:{genre_id}, not found.\n{e}")
+
 
     def create(self, **kwargs):
         try:

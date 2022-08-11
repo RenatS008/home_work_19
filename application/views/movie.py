@@ -15,7 +15,7 @@ movie_schema = MovieSchema(many=True)
 @movie_ns.param("genre_id", description="получить все фильмы жанра")
 @movie_ns.param("year", description="получить все фильмы за год")
 class MovieView(Resource):
-
+    @auth_required
     def get(self):
         """
         Поиск фильмов по нескольким параметрам, если параметр не задан,
@@ -46,7 +46,7 @@ class MovieView(Resource):
         """
         Получение фильмов по его id
         """
-        return movie_schema.dump(movie_service.get_by(movie_id)), 200
+        return movie_schema.dump(movie_service.get_by_id(movie_id)), 200
 
     @admin_required
     def put(self, movie_id: int):
@@ -65,8 +65,7 @@ class MovieView(Resource):
         """
         Удаление фильма по его id
         """
-        if movie_schema.dump(movie_service.delete(movie_id)):
+        if movie_service.delete(movie_id):
             return "Фильм успешно удален.", 204
         else:
             return "Фильм не удален.", 502
-

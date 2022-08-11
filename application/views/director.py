@@ -2,7 +2,7 @@ from flask import request
 from flask_restx import Resource, Namespace
 
 from application.dao.model.director import DirectorSchema
-from application.service.protection import auth_required, admin_required
+from application.service.protection import admin_required, auth_required
 
 from implemented import director_service
 
@@ -42,7 +42,10 @@ class DirectorView(Resource):
         """
         Получение режиссера по его id
         """
-        return director_schema.dump([director_service.get_by_id(director_id)]), 200
+        if director_schema.dump([director_service.get_by_id(director_id)]):
+            return director_schema.dump([director_service.get_by_id(director_id)]), 200
+        else:
+            return print(f"Error: director with id:{director_id}, not found."), 502
 
     @admin_required
     def put(self, director_id: int):

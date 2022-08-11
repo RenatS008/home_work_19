@@ -1,23 +1,16 @@
+import base64
 import os
-
-import constants
 
 
 class Config(object):
     RESTX_JSON = {'ensure_ascii': False, 'indent': 2}
-    SECRET_HERE = '249y823r9v8238r9u'
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(os.getcwd(), 'movies.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    SECRET_KEY = constants.SECRET_KEY
-    HASH_NAME = constants.HASH_NAME
-    ALGORITHMS = constants.ALGORITHMS
+    SECRET_KEY = '798d8a85fda4a26bf92ee'
+    ALGORITHM = 'HS256'
+    PWD_HASH_ITERATIONS = 1000000
+    PWD_HASH_SALT = base64.b64decode("salt")
 
-    PWD_HASH_SALT = constants.PWD_HASH_SALT
-    PWD_HASH_ITERATIONS = constants.PWD_HASH_ITERATIONS
-
-    TOKEN_EXPIRE_MINUTES = constants.TOKEN_EXPIRE_MINUTES
-    TOKEN_EXPIRE_DAYS = constants.TOKEN_EXPIRE_DAYS
-
-
-
+    TOKEN_EXPIRE_MINUTES = 15
+    TOKEN_EXPIRE_DAYS = 130

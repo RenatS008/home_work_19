@@ -9,6 +9,9 @@ class MovieService:
     def get_all(self) -> list[Movie]:
         return self.movie_dao.get_all()
 
+    def get_by_id(self, movie_id):
+        return self.movie_dao.get_by_id(movie_id)
+
     def get_by(self, **kwargs):
         return self.movie_dao.gets_universal(**kwargs)
 

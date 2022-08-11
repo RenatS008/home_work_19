@@ -21,6 +21,7 @@ class AuthView(Resource):
             return "Нет пароля или логина", 400
 
         user = user_service.get_by_username(username=username)
+
         return generate_token_for_user(username=username,
                                        password=password,
                                        password_hash=user.password,
